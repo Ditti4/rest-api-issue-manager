@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DeveloperTestData {
     @Bean
-    CommandLineRunner initializeDatabase(DeveloperRepository repository) {
+    CommandLineRunner initializeDeveloperTestData(DeveloperRepository repository) {
         return args -> {
             repository.save(new Developer("King Benbow"));
             repository.save(new Developer("Nettie Grady"));
