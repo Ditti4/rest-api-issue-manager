@@ -2,20 +2,18 @@ package de.ditti4.restapiissuemanager.developer;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
 public class Developer {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long id;
     private String name;
 
     public Developer() {}
 
-    public Developer(Long id, String name) {
-        this.id = id;
+    public Developer(String name) {
         this.name = name;
     }
 
