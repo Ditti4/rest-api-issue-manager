@@ -1,8 +1,8 @@
 package de.ditti4.restapiissuemanager.developer;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-@Repository
+@RepositoryRestResource(path = "developers")
 public interface DeveloperRepository extends JpaRepository<Developer, Long> {
 }
