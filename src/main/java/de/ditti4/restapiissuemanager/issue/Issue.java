@@ -1,13 +1,24 @@
 package de.ditti4.restapiissuemanager.issue;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import de.ditti4.restapiissuemanager.developer.Developer;
+import de.ditti4.restapiissuemanager.issue.bug.Bug;
+import de.ditti4.restapiissuemanager.issue.story.Story;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
 import java.util.Date;
 
+@RestResource(path = "issues", rel = "issues")
 @Entity
-public class Issue {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = Bug.class),
+        @JsonSubTypes.Type(value = Story.class)
+})
+public abstract class Issue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,6 +29,10 @@ public class Issue {
 
     @ManyToOne
     private Developer developer;
+
+    protected IssueType type;
+
+    public Issue() {}
 
     public Issue(String title, String description) {
         this.title = title;
@@ -32,8 +47,16 @@ public class Issue {
         return title;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Date getCreationDate() {
@@ -44,15 +67,11 @@ public class Issue {
         return developer;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public void setDeveloper(Developer developer) {
         this.developer = developer;
+    }
+
+    public IssueType getType() {
+        return type;
     }
 }
