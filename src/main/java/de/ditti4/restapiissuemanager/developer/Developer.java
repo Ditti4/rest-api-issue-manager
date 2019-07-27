@@ -1,9 +1,9 @@
 package de.ditti4.restapiissuemanager.developer;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import de.ditti4.restapiissuemanager.issue.Issue;
+
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 public class Developer {
@@ -11,6 +11,8 @@ public class Developer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    @OneToMany(mappedBy = "developer")
+    private List<Issue> issues;
 
     public Developer() {}
 
@@ -32,5 +34,9 @@ public class Developer {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<Issue> getIssues() {
+        return issues;
     }
 }
