@@ -10,7 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @RestResource(path = "issues", rel = "issues")
@@ -27,8 +27,7 @@ public abstract class Issue {
     private String title;
     private String description;
     @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date creationDate;
+    private ZonedDateTime creationDate;
 
     @ManyToOne
     private Developer developer;
@@ -65,7 +64,7 @@ public abstract class Issue {
         this.description = description;
     }
 
-    public Date getCreationDate() {
+    public ZonedDateTime getCreationDate() {
         return creationDate;
     }
 
