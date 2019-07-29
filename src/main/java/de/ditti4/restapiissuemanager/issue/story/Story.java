@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import de.ditti4.restapiissuemanager.issue.Issue;
 import de.ditti4.restapiissuemanager.issue.IssueType;
+import de.ditti4.restapiissuemanager.week.Week;
 
 import javax.persistence.Entity;
 
@@ -39,6 +40,12 @@ public class Story extends Issue {
             this.status = StoryStatus.NEW;
         }
         this.estimate = estimate;
+    }
+
+    public Integer getRemainingEstimate() {
+        return this.estimate > Week.MAXIMUM_WORKLOAD_PER_WEEK * this.getWeeks().size() ?
+                this.estimate - Week.MAXIMUM_WORKLOAD_PER_WEEK * this.getWeeks().size() :
+                this.estimate;
     }
 
     public StoryStatus getStatus() {

@@ -3,6 +3,7 @@ package de.ditti4.restapiissuemanager.week;
 import de.ditti4.restapiissuemanager.issue.Issue;
 import de.ditti4.restapiissuemanager.issue.IssueType;
 import de.ditti4.restapiissuemanager.issue.story.Story;
+import de.ditti4.restapiissuemanager.issue.story.StoryStatus;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -47,7 +48,21 @@ public class Week {
         return getIssues().stream()
                 .filter(issue -> issue.getType() == IssueType.STORY)
                 .map(issue -> (Story) issue)
-                .map(Story::getEstimate)
+                .filter(story -> story.getStatus() != StoryStatus.NEW)
+                .map(story -> {
+                    // If there's some estimate still unassigned or this week is
+                    // not the last week assigned to the story, return the
+                    // maximum workload per week.
+                    if (story.getRemainingEstimate() > 0 ||
+                            story.getWeeks().stream().
+                                    anyMatch(week -> week.getStartDate().compareTo(this.getEndDate()) > 0)) {
+                        return MAXIMUM_WORKLOAD_PER_WEEK;
+                    } else {
+                        // Otherwise, return the total estimate minus the
+                        // workload taken care of by the previous weeks.
+                        return story.getEstimate() - (MAXIMUM_WORKLOAD_PER_WEEK * (story.getWeeks().size() - 1));
+                    }
+                })
                 .mapToInt(Integer::intValue)
                 .sum();
     }
