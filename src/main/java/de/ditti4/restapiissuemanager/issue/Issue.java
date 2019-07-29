@@ -5,11 +5,13 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import de.ditti4.restapiissuemanager.developer.Developer;
 import de.ditti4.restapiissuemanager.issue.bug.Bug;
 import de.ditti4.restapiissuemanager.issue.story.Story;
+import de.ditti4.restapiissuemanager.week.Week;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @RestResource(path = "issues", rel = "issues")
 @Entity
@@ -25,10 +27,14 @@ public abstract class Issue {
     private String title;
     private String description;
     @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
     private Date creationDate;
 
     @ManyToOne
     private Developer developer;
+
+    @ManyToMany(mappedBy = "issues")
+    private List<Week> weeks;
 
     protected IssueType type;
 
@@ -69,6 +75,10 @@ public abstract class Issue {
 
     public void setDeveloper(Developer developer) {
         this.developer = developer;
+    }
+
+    public List<Week> getWeeks() {
+        return weeks;
     }
 
     public IssueType getType() {
