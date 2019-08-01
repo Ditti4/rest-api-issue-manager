@@ -3,6 +3,7 @@ package de.ditti4.restapiissuemanager.developer;
 import de.ditti4.restapiissuemanager.issue.Issue;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -12,7 +13,7 @@ public class Developer {
     private Long id;
     private String name;
     @OneToMany(mappedBy = "developer")
-    private List<Issue> issues;
+    private List<Issue> issues = new ArrayList<>();
 
     public Developer() {}
 

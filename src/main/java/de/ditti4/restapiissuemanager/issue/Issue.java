@@ -11,6 +11,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestResource(path = "issues", rel = "issues")
@@ -33,7 +34,7 @@ public abstract class Issue {
     private Developer developer;
 
     @ManyToMany(mappedBy = "issues")
-    private List<Week> weeks;
+    private List<Week> weeks = new ArrayList<>();
 
     protected IssueType type;
 

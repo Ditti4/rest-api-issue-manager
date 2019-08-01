@@ -7,6 +7,7 @@ import de.ditti4.restapiissuemanager.issue.story.StoryStatus;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -22,7 +23,7 @@ public class Week {
     @JoinTable(name = "week_issue",
             joinColumns = @JoinColumn(name = "week_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "issue_id", referencedColumnName = "id"))
-    List<Issue> issues;
+    List<Issue> issues = new ArrayList<>();
 
     public Long getId() {
         return id;
