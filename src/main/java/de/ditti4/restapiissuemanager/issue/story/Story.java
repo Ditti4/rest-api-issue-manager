@@ -19,9 +19,10 @@ public class Story extends Issue {
         this.initDefaultValues();
     }
 
-    public Story(String title, String description) {
+    public Story(String title, String description, Integer estimate) {
         super(title, description);
         this.initDefaultValues();
+        this.setEstimate(estimate);
     }
 
     private void initDefaultValues() {
