@@ -19,11 +19,8 @@ public class Week {
     private Long id;
     private LocalDate startDate;
 
-    @ManyToMany
-    @JoinTable(name = "week_issue",
-            joinColumns = @JoinColumn(name = "week_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "issue_id", referencedColumnName = "id"))
-    List<Issue> issues = new ArrayList<>();
+    @OneToMany(mappedBy = "week")
+    private List<Issue> issues = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -50,20 +47,7 @@ public class Week {
                 .filter(issue -> issue.getType() == IssueType.STORY)
                 .map(issue -> (Story) issue)
                 .filter(story -> story.getStatus() != StoryStatus.NEW)
-                .map(story -> {
-                    // If there's some estimate still unassigned or this week is
-                    // not the last week assigned to the story, return the
-                    // maximum workload per week.
-                    if (story.getRemainingEstimate() > 0 ||
-                            story.getWeeks().stream().
-                                    anyMatch(week -> week.getStartDate().compareTo(this.getEndDate()) > 0)) {
-                        return MAXIMUM_WORKLOAD_PER_WEEK;
-                    } else {
-                        // Otherwise, return the total estimate minus the
-                        // workload taken care of by the previous weeks.
-                        return story.getEstimate() - (MAXIMUM_WORKLOAD_PER_WEEK * (story.getWeeks().size() - 1));
-                    }
-                })
+                .map(Story::getEstimate)
                 .mapToInt(Integer::intValue)
                 .sum();
     }

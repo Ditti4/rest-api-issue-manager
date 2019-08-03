@@ -11,8 +11,6 @@ import org.springframework.data.rest.core.annotation.RestResource;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @RestResource(path = "issues", rel = "issues")
 @Entity
@@ -33,8 +31,8 @@ public abstract class Issue {
     @ManyToOne
     private Developer developer;
 
-    @ManyToMany(mappedBy = "issues")
-    private List<Week> weeks = new ArrayList<>();
+    @ManyToOne
+    private Week week;
 
     protected IssueType type;
 
@@ -77,8 +75,12 @@ public abstract class Issue {
         this.developer = developer;
     }
 
-    public List<Week> getWeeks() {
-        return weeks;
+    public Week getWeek() {
+        return week;
+    }
+
+    public void setWeek(Week week) {
+        this.week = week;
     }
 
     public IssueType getType() {

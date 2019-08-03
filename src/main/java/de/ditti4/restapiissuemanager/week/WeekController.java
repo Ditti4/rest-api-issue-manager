@@ -37,24 +37,52 @@ public class WeekController {
 
     @PostMapping("weeks")
     public ResponseEntity<ResourceSupport> post(PersistentEntityResourceAssembler assembler, @RequestBody Week newWeek) throws URISyntaxException {
+        // First, split up any stories which have an estimate larger than the maximum workload per week.
+        List<Story> storiesWhichNeedToBeSplitUp = issueRepository.findAll().stream()
+                .filter(issue -> issue.getType() == IssueType.STORY)
+                .map(issue -> (Story) issue)
+                .filter(story -> story.getStatus() == StoryStatus.ESTIMATED)
+                .filter(story -> story.getEstimate() > Week.MAXIMUM_WORKLOAD_PER_WEEK)
+                .collect(Collectors.toList());
+
+        for (Story story : storiesWhichNeedToBeSplitUp) {
+            int amountOfSubStories = story.getEstimate() / Week.MAXIMUM_WORKLOAD_PER_WEEK;
+            if (story.getEstimate() % Week.MAXIMUM_WORKLOAD_PER_WEEK != 0) {
+                amountOfSubStories++;
+            }
+            for (int i = 0; i < amountOfSubStories; i++) {
+                int subStoryWorkload = 0;
+                if (story.getEstimate() - Week.MAXIMUM_WORKLOAD_PER_WEEK * (i + 1) > 0) {
+                    subStoryWorkload = Week.MAXIMUM_WORKLOAD_PER_WEEK;
+                } else {
+                    subStoryWorkload = story.getEstimate() - Week.MAXIMUM_WORKLOAD_PER_WEEK * i;
+                }
+                issueRepository.save(new Story(story.getTitle() + " (1 of " + amountOfSubStories + " sub tasks)", story.getDescription(), subStoryWorkload));
+            }
+            issueRepository.delete(story);
+        }
+
         List<Story> remainingStories = issueRepository.findAll().stream()
                 .filter(issue -> issue.getType() == IssueType.STORY)
                 .map(issue -> (Story) issue)
                 .filter(story -> story.getStatus() == StoryStatus.ESTIMATED)
-                .filter(story -> story.getRemainingEstimate() > 0)
-                .sorted(Comparator.comparing(Story::getId)) // let's try a FIFO approach
+                .filter(story -> story.getWeek() == null)
+                .sorted(Comparator.comparingInt(Story::getEstimate).reversed()) // Let's tackle the largest ones first.
                 .collect(Collectors.toList());
+
 
         for (Developer developer : developerRepository.findAll()) {
             int workload = 0;
             List<Story> assignedStories = new ArrayList<>();
             for (Story story : remainingStories) {
-                if (workload < Week.MAXIMUM_WORKLOAD_PER_WEEK) {
+                if (workload + story.getEstimate() <= Week.MAXIMUM_WORKLOAD_PER_WEEK) {
                     story.setDeveloper(developer);
-                    workload += story.getRemainingEstimate();
-                    newWeek.issues.add(story);
+                    story.setWeek(newWeek);
+                    workload += story.getEstimate();
+                    newWeek.getIssues().add(story);
                     assignedStories.add(story);
-                } else {
+                }
+                if (workload == Week.MAXIMUM_WORKLOAD_PER_WEEK) {
                     break;
                 }
             }
@@ -64,7 +92,7 @@ public class WeekController {
         newWeek = repository.save(newWeek);
         issueRepository.saveAll(newWeek.getIssues());
 
-        // The following code is pretty much copied from RepositoryEntityController's createAndReturn method
+        // The following code is pretty much copied from RepositoryEntityController's createAndReturn method.
 
         Optional<PersistentEntityResource> resource = Optional
                 .ofNullable(assembler.toFullResource(newWeek));
